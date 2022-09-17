@@ -12,7 +12,6 @@ dislikes : Number — nombre d'utilisateurs qui n'aiment pas (= dislike) la sauc
 usersLiked : [ "String <userId>" ] — tableau des identifiants des utilisateurs qui ont aimé (= liked) la sauce
 usersDisliked : [ "String <userId>" ] — tableau des identifiants des utilisateurs qui n'ont pas aimé (= disliked) la sauce*/
 
-
 const mongoose = require('mongoose');
 
 // Mise en place du schéma de données mongoDB
@@ -24,12 +23,11 @@ const sauceSchema = mongoose.Schema({
   mainPepper: { type: String, required: true }, 
   imageUrl: { type: String, required: true }, 
   heat: { type: Number, required: true }, 
-/* à continuer pour :
-likes : Number — nombre d'utilisateurs qui aiment (= likent) la sauce
-dislikes : Number — nombre d'utilisateurs qui n'aiment pas (= dislike) la sauce
-usersLiked : [ "String <userId>" ] — tableau des identifiants des utilisateurs qui ont aimé (= liked) la sauce
-usersDisliked : [ "String <userId>" ] — tableau des identifiants des utilisateurs qui n'ont pas aimé (= disliked) la sauce*/
+  likes: { type: Number, default: 0, required: true }, 
+  dislikes: { type: Number, default: 0, required: true }, 
+  usersLiked: { type: Array, default: [], required: true }, 
+  usersDisliked: { type: Array, default: [], required: true }, 
 });
 
 // Pour exporter et exploiter le schéma de données
-module.exports = mongoose.model('Sauce', sauceSchema);
+module.exports = mongoose.model('sauce', sauceSchema);

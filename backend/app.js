@@ -7,6 +7,12 @@ const app = express();
 // Import de mongoDB
 const mongoose = require('mongoose');
 
+// Import des routes (CRUD)
+const sauceRoutes = require('./routes/sauce');
+
+// Pour mettre en place le chemin d'accès à un fichier téléchargé par l'utilisateur
+const path = require('path');
+
 // Import des routes utilisateur
 const userRoutes = require('./routes/user');
 
@@ -30,6 +36,13 @@ app.use((req, res, next) => {
     next();
   });
 
+// Mise en place des routes utilisateur
 app.use('/api/auth', userRoutes);
+
+// Mise en place des routes Sauce (CRUD)
+app.use('/api/sauces', sauceRoutes);
+
+// Middleware de téléchargement de fichiers (images des sauces)
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 module.exports = app;

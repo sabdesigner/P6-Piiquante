@@ -1,5 +1,6 @@
 // Import du package de création de token
 const jwt = require('jsonwebtoken');
+
 // Création du middleware d'authentification
 module.exports = (req, res, next) => {
    try {
