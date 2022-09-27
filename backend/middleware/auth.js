@@ -14,6 +14,6 @@ module.exports = (req, res, next) => {
        };
 	next();
    } catch(error) {
-       res.status(403).json({ error:"Demande non autorisée" });
+       res.status(401).json({ error:"user non auth" });
    }
 };
