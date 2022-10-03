@@ -1,8 +1,10 @@
+
 // Import d'Express
 const express = require('express');
-
+const helmet = require('helmet')
 // Utilisation d'Express
 const app = express();
+app.use (helmet());
 
 // Import de mongoDB
 const mongoose = require('mongoose');
@@ -15,6 +17,9 @@ const path = require('path');
 
 // Import des routes utilisateur
 const userRoutes = require('./routes/user');
+
+// Import DOTENV
+require('dotenv').config()
 
 // Configuration de mongoDB
 mongoose.connect('mongodb+srv://SabDesigner:SabDesigner@cluster0.romkqoq.mongodb.net/?retryWrites=true&w=majority',
