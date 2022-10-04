@@ -19,7 +19,7 @@ const path = require('path');
 const userRoutes = require('./routes/user');
 
 // Import DOTENV
-require('dotenv').config()
+
 
 // Configuration de mongoDB
 mongoose.connect('mongodb+srv://SabDesigner:SabDesigner@cluster0.romkqoq.mongodb.net/?retryWrites=true&w=majority',

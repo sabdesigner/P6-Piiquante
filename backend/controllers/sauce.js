@@ -69,6 +69,11 @@ exports.deleteSauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id }) 
   //on recherche l'objet dans la base de données
     .then(sauce => { 
+      // 403 indique qu'un serveur comprend la requête mais refuse de l'autoriser.
+      if (sauce.userId !== req.auth.userId) {
+        res.status(403).json({ error: "Unauthorized request" });
+
+      } else if (sauce.userId == req.auth.userId) {
       // quand il est trouvé
       const filename = sauce.imageUrl.split('/images/')[1]; 
       // on extrait le nom du fichier à supprimer
@@ -79,12 +84,12 @@ exports.deleteSauce = (req, res, next) => {
           .then(() => res.status(200).json({ message: 'Sauce supprimée !'}))
           .catch(error => res.status(400).json({ error }));
       });
+    }
     })
     .catch(error => res.status(500).json({ error }));
 };
 
 // Contrôleur de la fonction like des sauces
-
 exports.likeSauce = (req, res, next) => {
   Sauce.findOne({ _id: req.params.id })
   .then(sauce => {
@@ -114,6 +119,7 @@ exports.likeSauce = (req, res, next) => {
           sauce.dislikes -= 1;
       }
       sauce.save();
+      // 201 indique que la requête a réussi et qu'une ressource a été créée en conséquence.
       res.status(201).json({ message: 'Like et/ou Dislike mis à jour' });
   })
   .catch(error => res.status(500).json({ error }));
