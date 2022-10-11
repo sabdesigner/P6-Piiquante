@@ -1,14 +1,8 @@
-/*const http = require('http');
+const http = require('https');
 const app = require('./app');
-
-app.set('port', process.env.PORT || 3000);
-const server = http.createServer(app);
-
-server.listen(process.env.PORT || 3000);*/
-
-const http = require('http');
-const app = require('./app');
-require('dotenv').config({path:'controllers/.env'});
+require('dotenv').config({
+  path: '.env'
+});
 
 const normalizePort = val => {
   const port = parseInt(val, 10);
@@ -21,8 +15,8 @@ const normalizePort = val => {
   }
   return false;
 };
-const port = normalizePort(process.env.PORT ||'3000');
-console.log (`Ecoute le port ${process.env.PORT}`);
+const port = normalizePort(process.env.PORT || '3000');
+console.log(`Ecoute le port ${process.env.PORT}`);
 app.set('port', port);
 
 const errorHandler = error => {
@@ -33,11 +27,11 @@ const errorHandler = error => {
   const bind = typeof address === 'string' ? 'pipe ' + address : 'port: ' + port;
   switch (error.code) {
     case 'EACCES':
-      console.error(bind + ' requires elevated privileges.');
+      console.error(bind + 'requires elevated privileges.');
       process.exit(1);
       break;
     case 'EADDRINUSE':
-      console.error(bind + ' is already in use.');
+      console.error(bind + 'is already in use.');
       process.exit(1);
       break;
     default:

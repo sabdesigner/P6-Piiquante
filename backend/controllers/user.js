@@ -1,52 +1,83 @@
 // Import du modèle utilisateur
 const User = require('../models/user');
 
-/*Le mot de passe n'est pas haché. Veillez à hacher le mot de passe.
- Un utilisateur peut s'inscrire plusieurs fois avec la même adresse
-électronique. Assurez-vous que le code vérifie qu’une adresse
-électronique est unique.*/
 // Import du package de cryptage (hacher le mot de passe)
 const bcrypt = require('bcrypt');
 // Import des tokens d'authentification 
 const jwt = require('jsonwebtoken');
+
+// Import de CryptoJS
+const cryptojs = require('crypto-js');
+
+//  Import DotEnv
+const dotenv = require("dotenv")
+const result = dotenv.config();
+
 // Controleur pour la création d'un compte utilisateur
 exports.signup = (req, res, next) => {
-    bcrypt.hash(req.body.password, 10)
-      .then(hash => {
-        const user = new User({
-          email: req.body.email,
-          password: hash 
-          // hash cryptage du mot du passe
-        });
-        // sauvegarde de l'user dans la base de donnée
-        user.save() 
-          .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
-          .catch(error => res.status(400).json({ error }));
-      })
-      .catch(error => res.status(500).json({ error }));
-  };
+  // chiffrer l'email avant envoi dans la base de donnée
+  const emailCryptoJS = cryptojs.HmacSHA256(req.body.email, `${process.env.CRYPTOJS_EMAIL}`).toString();
+
+  bcrypt.hash(req.body.password, 10)
+    .then(hash => {
+      const user = new User({
+        email: emailCryptoJS,
+        password: hash
+        // hash cryptage du mot du passe
+      });
+      // sauvegarde de l'user dans la base de donnée
+      user.save()
+        .then(() => res.status(201).json({
+          message: 'Utilisateur créé !'
+        }))
+        .catch(error => res.status(400).json({
+          error
+        }));
+    })
+    .catch(error => res.status(500).json({
+      error
+    }));
+};
 // Vérification si un utilisateur qui tente de se connecter et si il dispose d'identifiants valides
 exports.login = (req, res, next) => {
-    User.findOne({ email: req.body.email })
-        .then(user => {
-            if (!user) {
-                return res.status(401).json({ error: 'Utilisateur non trouvé !' });
-            }
-            bcrypt.compare(req.body.password, user.password)
-                .then(valid => {
-                    if (!valid) {
-                        return res.status(401).json({ error: 'Mot de passe incorrect !' });
-                    }
-                    res.status(200).json({
-                        userId: user._id,
-                        token: jwt.sign(
-                            { userId: user._id },
-                            'RANDOM_TOKEN_SECRET',
-                            { expiresIn: '24h' }
-                        )
-                    });
-                })
-                .catch(error => res.status(500).json({ error }));
+  const emailCryptoJS = cryptojs.HmacSHA256(req.body.email, `${process.env.CRYPTOJS_EMAIL}`).toString();
+
+  User.findOne({
+      email: emailCryptoJS
+    })
+    .then(user => {
+      if (!user) {
+        return res.status(401).json({
+          error: 'Utilisateur non trouvé !'
+        });
+      }
+      bcrypt.compare(req.body.password, user.password)
+        .then(valid => {
+          // Le mot de passe est incorrect
+
+          if (!valid) {
+            return res.status(401).json({
+              error: 'Mot de passe incorrect !'
+            });
+          }
+          // Le mot de passe est correct
+          // envoie de la reponse server du userId et du token d'authentification
+          res.status(200).json({
+            userId: user._id,
+            token: jwt.sign({
+                userId: user._id
+              },
+              'RANDOM_TOKEN_SECRET', {
+                expiresIn: '24h'
+              }
+            )
+          });
         })
-        .catch(error => res.status(500).json({ error }));
- };
+        .catch(error => res.status(500).json({
+          error
+        }));
+    })
+    .catch(error => res.status(500).json({
+      error
+    }));
+};
