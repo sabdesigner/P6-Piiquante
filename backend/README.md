@@ -1,4 +1,12 @@
 Piiquante - openClassrooms web developer P6 2022
+pre-requis nodejs + express
+npm install
+
+backend
+fontend
+
+liste des plugins
+
 Afin de lancer ce programme, vous avez les clés du fichier .env, vous devez disposer du frontend openclassrooms disponible sur https://github.com/OpenClassrooms-Student-Center/Web-Developer-P6
 
 Dans un terminal dans le dossier du frontend, lancez "npm run start".
