@@ -46,6 +46,63 @@ exports.createSauce = (req, res, next) => {
 };
 // Controlleur de la route PUT    
 exports.modifySauce = (req, res, next) => {
+console.log(`req.auth.userId`)
+
+//403 indique qu'un serveur comprend la requête mais refuse de l'autoriser.
+/*if (sauce.userId !== req.auth.userId) {
+    return res.status(403).json({
+      error: "Unauthorized request"
+    });
+  }*/
+
+if (req.file){
+    Sauce.findOne()
+
+    .then((objet) => {
+      console.log("retour de la promise obj")
+      console.log(objet)
+      const filename = objet.imageUrl.split('/images/')[1];
+
+      // supp de l'image du serveur
+      fs.unlink(`images/${filename}`, (error) => {
+        // on supprime ce fichier (ici l'image)
+        if (error) throw error;
+        })
+    })
+    .catch((error) => res.status(400).json({
+      error
+    }))
+  }else{
+  
+    console.log("False")
+}
+// obj qui va etre mis à jour dans la base de donnée
+
+const sauceObject = req.file ? 
+{
+  ...JSON.parse(req.body.sauce),
+  //si oui, on récup. les informations au format JSON
+  imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+  // puis cela génére une nouvelle URL
+} : {
+  ...JSON.parse(req.body)
+};
+
+Sauce.updateOne({
+  _id: req.params.id
+}, {
+  ...sauceObject,
+  _id: req.params.id
+})
+.then(() => res.status(200).json({
+  message: 'Sauce modifiée !'
+}))
+.catch(error => res.status(404).json({
+  error
+}));
+}
+
+/*exports.modifySauce = (req, res, next) => {
   console.log(`req.auth.userId`),
     //si l'user auth different Sauce.userId err 403 Sauce.findOne sinon ok
     // Vérification que la sauce appartient à la personne qui effectue la requête
@@ -53,7 +110,7 @@ exports.modifySauce = (req, res, next) => {
       _id: req.params.id
     })
     .then((sauce) => {
-      // 403 indique qu'un serveur comprend la requête mais refuse de l'autoriser.
+      //403 indique qu'un serveur comprend la requête mais refuse de l'autoriser.
       if (sauce.userId !== req.auth.userId) {
         return res.status(403).json({
           error: "Unauthorized request"
@@ -86,7 +143,7 @@ exports.modifySauce = (req, res, next) => {
           error
         }));
     })
-}
+}*/
 
 // Controlleur de la route DELETE
 // verification si l'User auth est bien le createur sauce Id 
@@ -123,7 +180,7 @@ exports.deleteSauce = (req, res, next) => {
     .catch(error => res.status(500).json({
       error
     }));
-};
+}
 
 // Contrôleur de la fonction like des sauces
 exports.likeSauce = (req, res, next) => {
