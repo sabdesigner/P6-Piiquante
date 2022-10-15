@@ -5,7 +5,7 @@ const Sauce = require('../models/sauce');
 const fs = require('fs');
 
 // Controlleur de la route GET (récupération de toutes les sauces)
-exports.getAllSauces = (req, res, next) => {
+exports.getAllSauces = (req, res) => {
   Sauce.find()
     .then((sauces) => res.status(200).json(sauces))
     .catch((error) => res.status(404).json({
@@ -13,7 +13,7 @@ exports.getAllSauces = (req, res, next) => {
     }));
 };
 // Controlleur de la route GET (récupération d'une sauce spécifique)
-exports.getOneSauce = (req, res, next) => {
+exports.getOneSauce = (req, res) => {
   Sauce.findOne({
       _id: req.params.id
     })
@@ -23,7 +23,7 @@ exports.getOneSauce = (req, res, next) => {
     }));
 }
 // Controlleur de la route POST
-exports.createSauce = (req, res, next) => {
+exports.createSauce = (req, res) => {
   // extraire les données JSON de l'objet
   const sauceObject = JSON.parse(req.body.sauce);
   delete sauceObject._id;
@@ -45,16 +45,9 @@ exports.createSauce = (req, res, next) => {
     }));
 };
 // Controlleur de la route PUT    
-exports.modifySauce = (req, res, next) => {
+exports.modifySauce = (req, res) => {
+
 console.log(`req.auth.userId`)
-
-//403 indique qu'un serveur comprend la requête mais refuse de l'autoriser.
-/*if (sauce.userId !== req.auth.userId) {
-    return res.status(403).json({
-      error: "Unauthorized request"
-    });
-  }*/
-
 if (req.file){
     Sauce.findOne()
 
@@ -72,18 +65,24 @@ if (req.file){
     .catch((error) => res.status(400).json({
       error
     }))
-  }else{
+  }
+  //403 indique qu'un serveur comprend la requête mais refuse de l'autoriser.
+  else if (sauce.userId !== req.auth.userId) {
+    return res.status(403).json({
+      error: "Unauthorized request"
+    });
+  }
+  else{
   
     console.log("False")
 }
-// obj qui va etre mis à jour dans la base de donnée
-
+// Objet qui va etre mis à jour dans la base de donnée
 const sauceObject = req.file ? 
 {
   ...JSON.parse(req.body.sauce),
-  //si oui, on récup. les informations au format JSON
+  // Si oui, on récup. les informations au format JSON
   imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-  // puis cela génére une nouvelle URL
+  // Puis cela génére une nouvelle URL
 } : {
   ...JSON.parse(req.body)
 };
@@ -102,52 +101,9 @@ Sauce.updateOne({
 }));
 }
 
-/*exports.modifySauce = (req, res, next) => {
-  console.log(`req.auth.userId`),
-    //si l'user auth different Sauce.userId err 403 Sauce.findOne sinon ok
-    // Vérification que la sauce appartient à la personne qui effectue la requête
-    Sauce.findOne({
-      _id: req.params.id
-    })
-    .then((sauce) => {
-      //403 indique qu'un serveur comprend la requête mais refuse de l'autoriser.
-      if (sauce.userId !== req.auth.userId) {
-        return res.status(403).json({
-          error: "Unauthorized request"
-        });
-      }
-
-      // Récupération de la sauce dans la base de données
-      const sauceObject = req.file ?
-        // vérifier si une image à été téléchargée avec l'objet
-        {
-          ...JSON.parse(req.body.sauce),
-          //si oui, on récup. les informations au format JSON
-          imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-          // puis cela génére une nouvelle URL
-        } : {
-          ...req.body
-        };
-      // sinon on modifie son contenu
-
-      Sauce.updateOne({
-          _id: req.params.id
-        }, {
-          ...sauceObject,
-          _id: req.params.id
-        })
-        .then(() => res.status(200).json({
-          message: 'Sauce modifiée !'
-        }))
-        .catch(error => res.status(400).json({
-          error
-        }));
-    })
-}*/
-
 // Controlleur de la route DELETE
 // verification si l'User auth est bien le createur sauce Id 
-exports.deleteSauce = (req, res, next) => {
+exports.deleteSauce = (req, res) => {
 
   Sauce.findOne({
       _id: req.params.id
@@ -183,7 +139,7 @@ exports.deleteSauce = (req, res, next) => {
 }
 
 // Contrôleur de la fonction like des sauces
-exports.likeSauce = (req, res, next) => {
+exports.likeSauce = (req, res) => {
   Sauce.findOne({
       _id: req.params.id
     })
